@@ -6,9 +6,14 @@ from launch.actions import DeclareLaunchArgument, GroupAction
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch_ros.actions import Node, SetParameter
 
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
 
 def generate_launch_description():
     #params_file = LaunchConfiguration('params_file')
+    share_dir = get_package_share_directory('sllidar_ros2')
+    simulator_dir = get_package_share_directory('arcanain_simulator')
     package_dir      = get_package_share_directory("emcl2")
     emcl_params_file = os.path.join(package_dir, "config", 'emcl2_params.yaml')
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
@@ -29,6 +34,19 @@ def generate_launch_description():
     
 
     return LaunchDescription([
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(share_dir, 'launch', 'sllidar_a1_launch.py')
+            ),
+            launch_arguments={'use_sim_time': use_sim_time}.items()
+        ),
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(simulator_dir, 'launch', 'simulator.py')
+            ),
+            launch_arguments={'use_sim_time': use_sim_time}.items()
+        ),
 
         # map server node
         Node(
