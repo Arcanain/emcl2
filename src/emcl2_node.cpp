@@ -48,14 +48,14 @@ EMcl2Node::~EMcl2Node() {}
 void EMcl2Node::declareParameter()
 {
 	this->declare_parameter("global_frame_id", std::string("map"));
-	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
+	this->declare_parameter("footprint_frame_id", std::string("base_link"));
 	this->declare_parameter("odom_frame_id", std::string("odom"));
 	this->declare_parameter("base_frame_id", std::string("base_link"));
 
 	this->declare_parameter("odom_freq", 20);
 	this->declare_parameter("transform_tolerance", 0.2);
 
-	this->declare_parameter("laser_min_range", 0.0);
+	this->declare_parameter("laser_min_range", 0.3);
 	this->declare_parameter("laser_max_range", 100000000.0);
 	this->declare_parameter("scan_increment", 1);
 
@@ -64,7 +64,7 @@ void EMcl2Node::declareParameter()
 	this->declare_parameter("initial_pose_a", 0.0);
 
 	this->declare_parameter("num_particles", 500);
-	this->declare_parameter("alpha_threshold", 0.5);
+	this->declare_parameter("alpha_threshold", 1.2);
 	this->declare_parameter("expansion_radius_position", 0.1);
 	this->declare_parameter("expansion_radius_orientation", 0.2);
 	this->declare_parameter("extraction_rate", 0.1);
