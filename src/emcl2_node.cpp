@@ -65,16 +65,16 @@ void EMcl2Node::declareParameter()
 
 	this->declare_parameter("num_particles", 500);
 	this->declare_parameter("alpha_threshold", 0.7);
-	this->declare_parameter("expansion_radius_position", 0.1);
-	this->declare_parameter("expansion_radius_orientation", 0.2);
+	this->declare_parameter("expansion_radius_position", 0.05);
+	this->declare_parameter("expansion_radius_orientation", 0.3);
 	this->declare_parameter("extraction_rate", 0.1);
-	this->declare_parameter("range_threshold", 0.2);
+	this->declare_parameter("range_threshold", 0.23);
 	this->declare_parameter("sensor_reset", false);
 
 	this->declare_parameter("odom_fw_dev_per_fw", 0.00000000001);
-	this->declare_parameter("odom_fw_dev_per_rot", 0.0000001);
-	this->declare_parameter("odom_rot_dev_per_fw", 0.03);
-	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
+	this->declare_parameter("odom_fw_dev_per_rot", 0.000001);
+	this->declare_parameter("odom_rot_dev_per_fw", 0.0005);
+	this->declare_parameter("odom_rot_dev_per_rot", 0.01);
 
 	this->declare_parameter("laser_likelihood_max_dist", 0.1);
 }
