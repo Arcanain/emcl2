@@ -36,7 +36,7 @@ def generate_launch_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(share_dir, 'launch', 'sllidar_a1_launch.py')
+                os.path.join(share_dir, 'launch', 'sllidar_s2_launch.py')
             ),
             launch_arguments={'use_sim_time': use_sim_time}.items()
         ),
