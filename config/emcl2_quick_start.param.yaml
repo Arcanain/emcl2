@@ -13,7 +13,7 @@
     initial_pose_y: -0.5
     initial_pose_a: 0.0
     num_particles: 500
-    alpha_threshold: 0.5
+    alpha_threshold: 1.2
     expansion_radius_position: 0.1
     expansion_radius_orientation: 0.2
     extraction_rate: 0.1
