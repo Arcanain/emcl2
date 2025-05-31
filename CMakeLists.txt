@@ -13,6 +13,7 @@ endif()
 
 # 必要なパッケージを自動で探す
 find_package(ament_cmake_auto REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 ament_auto_find_build_dependencies()
 

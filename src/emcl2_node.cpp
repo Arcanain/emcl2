@@ -3,6 +3,8 @@
 // CAUTION: Some lines came from amcl (LGPL).
 
 #include "emcl2/emcl2_node.h"
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
+#include <rclcpp_lifecycle/state.hpp>
 
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
@@ -26,11 +28,11 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-
+using namespace std::chrono_literals;
 namespace emcl2
 {
-EMcl2Node::EMcl2Node()
-: Node("emcl2_node"),
+EMcl2Node::EMcl2Node(const rclcpp::NodeOptions & options)
+: rclcpp_lifecycle::LifecycleNode("emcl2_node", /*ns=*/"", options),
   ros_clock_(RCL_SYSTEM_TIME),
   init_pf_(false),
   init_request_(false),
@@ -39,11 +41,84 @@ EMcl2Node::EMcl2Node()
   map_receive_(false)
 {
 	// declare ros parameters
-	declareParameter();
-	initCommunication();
+	// declareParameter();
+	// initCommunication();
+	// ライフサイクルコールバックを登録
+	this->register_on_configure(
+		std::bind(&EMcl2Node::on_configure, this, std::placeholders::_1));
+	  this->register_on_activate(
+		std::bind(&EMcl2Node::on_activate,  this, std::placeholders::_1));
+	  this->register_on_deactivate(
+		std::bind(&EMcl2Node::on_deactivate,this, std::placeholders::_1));
+	  this->register_on_cleanup(
+		std::bind(&EMcl2Node::on_cleanup,  this, std::placeholders::_1));
+	  this->register_on_shutdown(
+		std::bind(&EMcl2Node::on_shutdown, this, std::placeholders::_1));
+	
 }
 
 EMcl2Node::~EMcl2Node() {}
+
+// configure 相当: パラメータ & 通信初期化
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+EMcl2Node::on_configure(const rclcpp_lifecycle::State &)
+{
+  declareParameter();
+  initCommunication();
+  // initTF();
+  RCLCPP_INFO(get_logger(), "on_configure: completed");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+
+// activate 相当: パブリッシャ有効化 & タイマー起動
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+EMcl2Node::on_activate(const rclcpp_lifecycle::State &)
+{
+  particlecloud_pub_->on_activate();
+  pose_pub_->on_activate();
+  alpha_pub_->on_activate();
+
+  // ループタイマー起動 (周期は以前と同じ odom_freq_ から取得)
+  loop_timer_ = this->create_wall_timer(
+    std::chrono::milliseconds(1000 / getOdomFreq()),
+    std::bind(&EMcl2Node::loop, this)
+  );
+
+  RCLCPP_INFO(get_logger(), "on_activate: timer started");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+// deactivate 相当: タイマー停止 & パブリッシャ無効化
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+EMcl2Node::on_deactivate(const rclcpp_lifecycle::State &)
+{
+  loop_timer_->cancel();
+  particlecloud_pub_->on_deactivate();
+  pose_pub_->on_deactivate();
+  alpha_pub_->on_deactivate();
+
+  RCLCPP_INFO(get_logger(), "on_deactivate");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+// cleanup 相当: リソース解放（必要に応じて）
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+EMcl2Node::on_cleanup(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(get_logger(), "on_cleanup");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+// shutdown 相当: シャットダウン時の処理
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+EMcl2Node::on_shutdown(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(get_logger(), "on_shutdown");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+
 
 void EMcl2Node::declareParameter()
 {
@@ -403,7 +478,10 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 	return true;
 }
 
-int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
+//int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
+int EMcl2Node::getOdomFreq() const {
+    return odom_freq_;
+}
 
 bool EMcl2Node::cbSimpleReset(
   const std_srvs::srv::Empty::Request::ConstSharedPtr, std_srvs::srv::Empty::Response::SharedPtr)
@@ -413,16 +491,28 @@ bool EMcl2Node::cbSimpleReset(
 
 }  // namespace emcl2
 
+//int main(int argc, char ** argv)
+//{
+//
+//	rclcpp::init(argc, argv);
+//	auto node = std::make_shared<emcl2::EMcl2Node>();
+//	rclcpp::Rate loop_rate(node->getOdomFreq());
+//	while (rclcpp::ok()) {
+//		node->loop();
+//		rclcpp::spin_some(node);
+//		loop_rate.sleep();
+//	}
+//	rclcpp::shutdown();
+//	return 0;
+//}
+
 int main(int argc, char ** argv)
 {
-	rclcpp::init(argc, argv);
-	auto node = std::make_shared<emcl2::EMcl2Node>();
-	rclcpp::Rate loop_rate(node->getOdomFreq());
-	while (rclcpp::ok()) {
-		node->loop();
-		rclcpp::spin_some(node);
-		loop_rate.sleep();
-	}
-	rclcpp::shutdown();
-	return 0;
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<emcl2::EMcl2Node>(rclcpp::NodeOptions());
+  rclcpp::executors::SingleThreadedExecutor exe;
+  exe.add_node(node->get_node_base_interface());
+  exe.spin();
+  rclcpp::shutdown();
+  return 0;
 }
