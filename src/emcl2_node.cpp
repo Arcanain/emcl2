@@ -46,13 +46,13 @@ EMcl2Node::EMcl2Node(const rclcpp::NodeOptions & options)
 	// ライフサイクルコールバックを登録
 	this->register_on_configure(
 		std::bind(&EMcl2Node::on_configure, this, std::placeholders::_1));
-	  this->register_on_activate(
+	this->register_on_activate(
 		std::bind(&EMcl2Node::on_activate,  this, std::placeholders::_1));
-	  this->register_on_deactivate(
+	this->register_on_deactivate(
 		std::bind(&EMcl2Node::on_deactivate,this, std::placeholders::_1));
-	  this->register_on_cleanup(
+	this->register_on_cleanup(
 		std::bind(&EMcl2Node::on_cleanup,  this, std::placeholders::_1));
-	  this->register_on_shutdown(
+	this->register_on_shutdown(
 		std::bind(&EMcl2Node::on_shutdown, this, std::placeholders::_1));
 	
 }
@@ -102,7 +102,7 @@ EMcl2Node::on_deactivate(const rclcpp_lifecycle::State &)
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-// cleanup 相当: リソース解放（必要に応じて）
+// cleanup : 必ず必要．
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 EMcl2Node::on_cleanup(const rclcpp_lifecycle::State &)
 {
@@ -110,7 +110,7 @@ EMcl2Node::on_cleanup(const rclcpp_lifecycle::State &)
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-// shutdown 相当: シャットダウン時の処理
+// shutdown ；必ず必要．managerによって正しくプロセス終了を行わないとプロセスが裏で残るため．
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 EMcl2Node::on_shutdown(const rclcpp_lifecycle::State &)
 {
