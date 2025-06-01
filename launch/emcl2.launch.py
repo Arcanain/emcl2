@@ -31,7 +31,6 @@ def generate_launch_description():
 
 
     lifecycle_nodes = ['map_server']
-    
 
     return LaunchDescription([
         IncludeLaunchDescription(
