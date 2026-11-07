@@ -15,7 +15,7 @@ def generate_launch_description():
     share_dir = get_package_share_directory('sllidar_ros2')
     simulator_dir = get_package_share_directory('arcanain_simulator')
     package_dir      = get_package_share_directory("emcl2")
-    emcl_params_file = os.path.join(package_dir, "config", 'emcl2_params.yaml')
+    emcl_params_file = os.path.join(package_dir, "config", 'emcl2.param.yaml')
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     map_file         = os.path.join(package_dir, "map", 'map.yaml')
     print('\nMAP',map_file)

@@ -13,7 +13,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
     #params_file = LaunchConfiguration('params_file')
     package_dir      = get_package_share_directory("emcl2")
-    emcl_params_file = os.path.join(package_dir, "config", 'emcl2_params.yaml')
+    emcl_params_file = os.path.join(package_dir, "config", 'emcl2.param.yaml')
     #use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     map_file         = os.path.join(package_dir, "map", 'map.yaml')
     print('\nMAP',map_file)
